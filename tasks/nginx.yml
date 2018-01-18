@@ -1,0 +1,50 @@
+---
+- name: Fail when nginx doesn't exist
+  shell: test -x /usr/sbin/nginx
+  changed_when: false
+
+- name: Create nginx includes dir
+  file: 
+    path: "/etc/nginx/includes"
+    state: directory
+  notify: reload nginx
+
+- name: Create nginx acme-challenge conf
+  template:
+    src: "etc/nginx/includes/letsencrypt-acme-challenge.conf.j2"
+    dest: "/etc/nginx/includes/letsencrypt-acme-challenge.conf"
+    force: yes
+  notify: reload nginx
+  
+- name: Grep for the acme include in default NGINX site
+  shell: grep -q 'include /etc/nginx/includes/letsencrypt-acme-challenge.conf' /etc/nginx/sites-available/default
+  register: acme_grep_result
+  ignore_errors: true
+  changed_when: false
+
+- name: Reset default site to non-ssl version
+  template:
+    src: "etc/nginx/sites-available/default.pre-ssl.j2"
+    dest: "/etc/nginx/sites-available/default"
+    backup: yes
+  when: acme_grep_result.rc != 0
+  notify: reload nginx
+
+- name: Enable the default site
+  file: 
+    path: "/etc/nginx/sites-enabled/default"
+    state: "link"
+    src: "/etc/nginx/sites-available/default"
+  notify: reload nginx
+
+- name: Reload nginx if necessary
+  meta: flush_handlers
+
+- name: Automatically renew LE certs with cron
+  cron: 
+    name: "Renew letsencrypt SSL certificates"
+    minute: "5"
+    hour: "7"
+    job: "/usr/local/bin/certbot-auto renew --quiet --no-self-upgrade && /usr/sbin/nginx -ttq && /usr/sbin/service nginx reload"
+  tags:
+    - cron

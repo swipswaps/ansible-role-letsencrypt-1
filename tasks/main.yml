@@ -3,15 +3,14 @@
   fail: msg="Server must be Ubuntu 16.04"
   when: ansible_distribution != 'Ubuntu' or ansible_distribution_version != '16.04'
 
-- name: Fail when nginx doesn't exist
-  shell: test -x /usr/sbin/nginx
-  changed_when: false
+- name: Run {{ letsencrypt_webserver }}.yml playbook
+  include: "{{ letsencrypt_webserver }}.yml"
 
 - name: Create the acme-challenge dir
   file: 
     path: "/var/www/letsencrypt/.well-known/acme-challenge"
     state: directory
-  notify: reload nginx
+  notify: "reload {{ letsencrypt_webserver }}"
 
 - name: Be able to ping the challenge dir
   lineinfile: 
@@ -20,19 +19,6 @@
     line: pong
     create: yes
 
-- name: Create nginx includes dir
-  file: 
-    path: "/etc/nginx/includes"
-    state: directory
-  notify: reload nginx
-
-- name: Create nginx acme-challenge conf
-  template:
-    src: "etc/nginx/includes/letsencrypt-acme-challenge.conf.j2"
-    dest: "/etc/nginx/includes/letsencrypt-acme-challenge.conf"
-    force: yes
-  notify: reload nginx
-  
 - name: Check if certbot-auto exists
   stat: path=/usr/local/bin/certbot-auto
   register: certbot_auto_file
@@ -43,7 +29,7 @@
     # checksum="sha256:0103972f4d42704ff70ac855b502718fadf161925eaa7da16455fa55737c8887"
     dest: /usr/local/bin/certbot-auto
     mode: 0755
-  notify: reload nginx
+  notify: "reload {{ letsencrypt_webserver }}"
   when: certbot_auto_file.stat.exists == false
   
 - name: Automatically update certbot-auto once a month with cron
@@ -56,27 +42,6 @@
   tags:
     - cron
 
-- name: Grep for the acme include in default NGINX site
-  shell: grep -q 'include /etc/nginx/includes/letsencrypt-acme-challenge.conf' /etc/nginx/sites-available/default
-  register: acme_grep_result
-  ignore_errors: true
-  changed_when: false
-
-- name: Reset default site to non-ssl version
-  template:
-    src: "etc/nginx/sites-available/default.pre-ssl.j2"
-    dest: "/etc/nginx/sites-available/default"
-    backup: yes
-  when: acme_grep_result.rc != 0
-  notify: reload nginx
-
-- name: Enable the default site
-  file: 
-    path: "/etc/nginx/sites-enabled/default"
-    state: "link"
-    src: "/etc/nginx/sites-available/default"
-  notify: reload nginx
-
 - name: Create a destination for dhparams
   file:
     path: "/usr/local/ssl/private"
@@ -88,18 +53,6 @@
   args:
     creates: /usr/local/ssl/private/dhparams.pem
 
-- name: Automatically renew LE certs with cron
-  cron: 
-    name: "Renew letsencrypt SSL certificates"
-    minute: "5"
-    hour: "7"
-    job: "/usr/local/bin/certbot-auto renew --quiet --no-self-upgrade && /usr/sbin/nginx -ttq && /usr/sbin/service nginx reload"
-  tags:
-    - cron
-
-- name: Reload nginx if necessary
-  meta: flush_handlers
-  
 - name: Stat the default site SSL cert
   shell: "test -e /etc/letsencrypt/live/{{ ansible_fqdn }}"
   register: default_cert_result
@@ -123,11 +76,6 @@
   register: default_cert_retest
   ignore_errors: true
   changed_when: default_cert_retest.rc != default_cert_result.rc
-  
-- name: Enable SSL on default site
-  template: src={{ ansible_dir }}/templates/etc/nginx/sites-available/default.LE.j2
-    dest=/etc/nginx/sites-available/default
-    backup=yes
-  notify: reload nginx
-  when: default_cert_retest.rc == 0
 
+- name: Run {{ letsencrypt_webserver }}_enable_ssl.yml playbook
+  include: "{{ letsencrypt_webserver }}_enable_ssl.yml"
