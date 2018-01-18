@@ -1,0 +1,133 @@
+---
+- name: Check if OS is Ubuntu 16.04
+  fail: msg="Server must be Ubuntu 16.04"
+  when: ansible_distribution != 'Ubuntu' or ansible_distribution_version != '16.04'
+
+- name: Fail when nginx doesn't exist
+  shell: test -x /usr/sbin/nginx
+  changed_when: false
+
+- name: Create the acme-challenge dir
+  file: 
+    path: "/var/www/letsencrypt/.well-known/acme-challenge"
+    state: directory
+  notify: reload nginx
+
+- name: Be able to ping the challenge dir
+  lineinfile: 
+    dest: "/var/www/letsencrypt/.well-known/acme-challenge/ping"
+    state: present
+    line: pong
+    create: yes
+
+- name: Create nginx includes dir
+  file: 
+    path: "/etc/nginx/includes"
+    state: directory
+  notify: reload nginx
+
+- name: Create nginx acme-challenge conf
+  template:
+    src: "etc/nginx/includes/letsencrypt-acme-challenge.conf.j2"
+    dest: "/etc/nginx/includes/letsencrypt-acme-challenge.conf"
+    force: yes
+  notify: reload nginx
+  
+- name: Check if certbot-auto exists
+  stat: path=/usr/local/bin/certbot-auto
+  register: certbot_auto_file
+
+- name: Download certbot-auto if it doesn't exist
+  get_url:
+    url: https://raw.githubusercontent.com/certbot/certbot/master/certbot-auto
+    # checksum="sha256:0103972f4d42704ff70ac855b502718fadf161925eaa7da16455fa55737c8887"
+    dest: /usr/local/bin/certbot-auto
+    mode: 0755
+  notify: reload nginx
+  when: certbot_auto_file.stat.exists == false
+  
+- name: Automatically update certbot-auto once a month with cron
+  cron: 
+    name: "Update certbot-auto once a month"
+    minute: "0"
+    hour: "0"
+    day: "1"
+    job: "/usr/local/bin/certbot-auto"
+  tags:
+    - cron
+
+- name: Grep for the acme include in default NGINX site
+  shell: grep -q 'include /etc/nginx/includes/letsencrypt-acme-challenge.conf' /etc/nginx/sites-available/default
+  register: acme_grep_result
+  ignore_errors: true
+  changed_when: false
+
+- name: Reset default site to non-ssl version
+  template:
+    src: "etc/nginx/sites-available/default.pre-ssl.j2"
+    dest: "/etc/nginx/sites-available/default"
+    backup: yes
+  when: acme_grep_result.rc != 0
+  notify: reload nginx
+
+- name: Enable the default site
+  file: 
+    path: "/etc/nginx/sites-enabled/default"
+    state: "link"
+    src: "/etc/nginx/sites-available/default"
+  notify: reload nginx
+
+- name: Create a destination for dhparams
+  file:
+    path: "/usr/local/ssl/private"
+    state: directory
+    mode: 0700
+
+- name: Create dhparams.pem (can take several minutes)
+  shell: umask 077 && openssl dhparam -out /usr/local/ssl/private/dhparams.pem 2048
+  args:
+    creates: /usr/local/ssl/private/dhparams.pem
+
+- name: Automatically renew LE certs with cron
+  cron: 
+    name: "Renew letsencrypt SSL certificates"
+    minute: "5"
+    hour: "7"
+    job: "/usr/local/bin/certbot-auto renew --quiet --no-self-upgrade && /usr/sbin/nginx -ttq && /usr/sbin/service nginx reload"
+  tags:
+    - cron
+
+- name: Reload nginx if necessary
+  meta: flush_handlers
+  
+- name: Stat the default site SSL cert
+  shell: "test -e /etc/letsencrypt/live/{{ ansible_fqdn }}"
+  register: default_cert_result
+  changed_when: "default_cert_result.rc != 0"
+  ignore_errors: true
+
+- name: Create a cert for the default site (can take some time)
+  shell: >
+    certbot-auto
+    --non-interactive
+    --agree-tos
+    --email {{ default_mail_recipient }}
+    certonly
+    --webroot -w /var/www/letsencrypt
+    -d $(hostname -f)
+  register: certbot_result
+  when: "default_cert_result.rc != 0"
+
+- name: Re-stat default site SSL cert
+  shell: "test -e /etc/letsencrypt/live/{{ ansible_fqdn }}"
+  register: default_cert_retest
+  ignore_errors: true
+  changed_when: default_cert_retest.rc != default_cert_result.rc
+  
+- name: Enable SSL on default site
+  template: src={{ ansible_dir }}/templates/etc/nginx/sites-available/default.LE.j2
+    dest=/etc/nginx/sites-available/default
+    backup=yes
+  notify: reload nginx
+  when: default_cert_retest.rc == 0
+
