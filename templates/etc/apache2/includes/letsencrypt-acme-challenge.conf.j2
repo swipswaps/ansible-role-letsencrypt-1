@@ -1,0 +1,25 @@
+#############################################################################
+# This config enables to access /.well-known/acme-challenge/xxxxxxxxxxx
+# for each site config it is included from.
+# This is required by ACME Challenge (webroot authentication).
+# You can check that this location is working by placing ping.txt here:
+# /var/www/letsencrypt/.well-known/acme-challenge/ping.txt
+# And pointing your browser to:
+# http://xxx.domain.tld/.well-known/acme-challenge/ping.txt
+#
+#############################################################################
+
+# Rule for legitimate ACME Challenge requests (like /.well-known/acme-challenge/xxxxxxxxx)
+Alias "/.well-known/acme-challenge" "/var/www/letsencrypt/.well-known/acme-challenge"
+
+# Hide /acme-challenge subdirectory and return 404 on all requests.
+# It is somewhat more secure than letting Apache return 403.
+<LocationMatch "/.well-known/acme-challenge/$">
+  Redirect 404 /.well-known/acme-challenge/
+</LocationMatch>
+
+# Disable indexes and allow accesss.
+<Directory "/var/www/letsencrypt/.well-known/acme-challenge">
+  Options -Indexes +FollowSymLinks
+  Require all granted
+</Directory>

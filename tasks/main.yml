@@ -77,5 +77,5 @@
   ignore_errors: true
   changed_when: default_cert_retest.rc != default_cert_result.rc
 
-- name: Run {{ letsencrypt_webserver }}_enable_ssl.yml playbook
-  include: "{{ letsencrypt_webserver }}_enable_ssl.yml"
+- name: Run {{ letsencrypt_webserver }}_default_ssl.yml playbook
+  include: "{{ letsencrypt_webserver }}_default_ssl.yml"

@@ -1,6 +1,6 @@
 ---
 - name: Enable SSL on default site
-  template: src={{ ansible_dir }}/templates/etc/nginx/sites-available/default.LE.j2
+  template: src=etc/nginx/sites-available/default.LE.j2
     dest=/etc/nginx/sites-available/default
     backup=yes
   notify: reload nginx
