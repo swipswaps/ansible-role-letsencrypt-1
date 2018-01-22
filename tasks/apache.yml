@@ -54,6 +54,6 @@
     name: "Renew letsencrypt SSL certificates"
     minute: "5"
     hour: "7"
-    job: "/usr/local/bin/certbot-auto renew --quiet --no-self-upgrade && /usr/sbin/apachectl configtest > /dev/null && /usr/sbin/service apache2 reload"
+    job: "/usr/local/bin/certbot-auto renew --quiet --no-self-upgrade && /usr/sbin/apachectl configtest 2>&1 | /bin/grep -v 'Syntax OK' || /usr/sbin/service apache2 reload"
   tags:
     - cron
