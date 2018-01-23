@@ -10,8 +10,7 @@ Requirements
 
 Role Variables
 --------------
-
-n/a
+* letsencrypt_webserver: The webserver to use for letsencrypt
 
 Dependencies
 ------------
