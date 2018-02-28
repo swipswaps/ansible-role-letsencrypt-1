@@ -10,7 +10,7 @@
   file: 
     path: "/var/www/letsencrypt/.well-known/acme-challenge"
     state: directory
-  notify: "reload {{ letsencrypt_webserver }}"
+  notify: "restart {{ letsencrypt_webserver }}"
 
 - name: Be able to ping the challenge dir
   lineinfile: 
@@ -29,7 +29,7 @@
     # checksum="sha256:0103972f4d42704ff70ac855b502718fadf161925eaa7da16455fa55737c8887"
     dest: /usr/local/bin/certbot-auto
     mode: 0755
-  notify: "reload {{ letsencrypt_webserver }}"
+  notify: "restart {{ letsencrypt_webserver }}"
   when: certbot_auto_file.stat.exists == false
   
 - name: Automatically update certbot-auto once a month with cron

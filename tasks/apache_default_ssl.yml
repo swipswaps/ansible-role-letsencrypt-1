@@ -5,7 +5,7 @@
     apache_restart_state: reloaded
 
 - name: Enable SSL on default site
-  template: src=etc/apache2/sites-available/000.default.conf.LE.j2
+  template: src=etc/apache2/sites-available/000-default.conf.LE.j2
     dest=/etc/apache2/sites-available/000-default.conf
     backup=yes
   notify: restart apache
