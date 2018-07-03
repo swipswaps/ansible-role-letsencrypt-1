@@ -7,13 +7,13 @@
   include: "{{ letsencrypt_webserver }}.yml"
 
 - name: Create the acme-challenge dir
-  file: 
+  file:
     path: "/var/www/letsencrypt/.well-known/acme-challenge"
     state: directory
   notify: "restart {{ letsencrypt_webserver }}"
 
 - name: Be able to ping the challenge dir
-  lineinfile: 
+  lineinfile:
     dest: "/var/www/letsencrypt/.well-known/acme-challenge/ping"
     state: present
     line: pong
@@ -31,14 +31,16 @@
     mode: 0755
   notify: "restart {{ letsencrypt_webserver }}"
   when: certbot_auto_file.stat.exists == false
-  
+
 - name: Automatically update certbot-auto once a month with cron
-  cron: 
+  cron:
     name: "Update certbot-auto once a month"
     minute: "0"
     hour: "0"
     day: "1"
-    job: "/usr/local/bin/certbot-auto --version > /dev/null 2>&1"
+    # The sed commands after the certbot script keep this job quiet when there is no upgrade and there are no errors.
+    job: >
+      /usr/local/bin/certbot-auto --version 2>&1 | /bin/sed -r 's/^certbot ([0-9]+)(\.[0-9]+)+$//' |/bin/sed '/^\s*$/d'
   tags:
     - cron
 
