@@ -1,7 +1,10 @@
 ---
-- name: Check if OS is Ubuntu 14.04 or 16.04
-  fail: msg="Server must be Ubuntu 14.04 or 16.04"
-  when: ansible_distribution != 'Ubuntu' or (ansible_distribution_version != '14.04' and ansible_distribution_version != '16.04')
+- name: Check if OS is Ubuntu LTS
+  fail: msg="Server must be Ubuntu LTS"
+  when: ansible_distribution != 'Ubuntu'
+    or (ansible_distribution_version != '14.04'
+      and ansible_distribution_version != '16.04'
+      and ansible_distribution_version != '18.04')
 
 - name: Run {{ letsencrypt_webserver }}.yml playbook
   include: "{{ letsencrypt_webserver }}.yml"
@@ -19,6 +22,24 @@
     line: pong
     create: yes
 
+- block:
+  - name: Install Certbot PPA on U18
+    apt_repository:
+      repo: ppa:certbot/certbot
+      state: present
+  - name: Install LetsEncrypt on U18
+    apt:
+      name: letsencrypt
+      state: present
+      update_cache: true
+  - name: Create symlink to old certbot path for AAW's benefit
+    file:
+      state: link
+      src: /usr/bin/certbot
+      dest: /usr/local/bin/certbot-auto
+  when: ansible_distribution == 'Ubuntu'
+    and ansible_distribution_version == '18.04'
+
 - name: Check if certbot-auto exists
   stat: path=/usr/local/bin/certbot-auto
   register: certbot_auto_file
@@ -32,7 +53,7 @@
   notify: "restart {{ letsencrypt_webserver }}"
   when: certbot_auto_file.stat.exists == false
 
-- name: Automatically update certbot-auto once a month with cron
+- name: Automatically update certbot-auto once a month with cron on older Ubuntu
   cron:
     name: "Update certbot-auto once a month"
     minute: "0"
@@ -43,6 +64,7 @@
       /usr/local/bin/certbot-auto --version 2>&1 | /bin/sed -r 's/^certbot ([0-9]+)(\.[0-9]+)+$//' |/bin/sed '/^\s*$/d'
   tags:
     - cron
+  when: ansible_distribution_version != '18.04'
 
 - name: Create a destination for dhparams
   file:
