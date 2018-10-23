@@ -1,15 +1,17 @@
 ---
 galaxy_info:
   author: Matt Breden
-  description: Installs Letsencrypt on Ubuntu 14.04 or 16.04
+  description: Prepares Letsencrypt for use on shared hosting servers
   company: Acro Media Inc.
-  license: MIT
-
+  license: GPLv3
   min_ansible_version: 2.0
   platforms:
   - name: Ubuntu
     versions:
     - trusty
     - xenial
+  - name: EL
+    versions:
+    - 6
   galaxy_tags: []
 dependencies: []

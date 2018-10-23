@@ -1,0 +1,6 @@
+---
+administrative_group: wheel
+apache2_name: httpd
+apache2_vhosts_conf_dir: conf.d
+service_binary: /sbin/service
+default_vhost_filename: welcome.conf

@@ -1,59 +1,69 @@
 ---
 - name: Fail when apache doesn't exist
-  shell: test -x /usr/sbin/apache2
+  shell: test -x /usr/sbin/{{ apache2_name }}
   changed_when: false
-  
+
 - name: Fail when apache isn't 2.4
-  shell: /usr/sbin/apache2 -v | grep -q 'Apache/2.4'
+  shell: /usr/sbin/{{ apache2_name }} -v | grep -q 'Apache/2.4'
+  when: ansible_os_family == 'Debian'
   changed_when: false
-  
+
+- name: Fail when apache isn't 2.2 (EL6)
+  shell: /usr/sbin/{{ apache2_name }} -v | grep -q 'Apache/2.2'
+  when: ansible_os_family == 'RedHat'
+  changed_when: false
+
 - name: Set apache restart handler variables
   set_fact:
-    apache_service: apache2
+    apache_service: '{{ apache2_name }}'
     apache_restart_state: reloaded
 
 - name: Create apache includes dir
-  file: 
-    path: "/etc/apache2/includes"
+  file:
+    path: "/etc/{{ apache2_name }}/includes"
     state: directory
   notify: restart apache
 
 - name: Create apache acme-challenge conf
   template:
-    src: "etc/apache2/includes/letsencrypt-acme-challenge.conf.j2"
-    dest: "/etc/apache2/includes/letsencrypt-acme-challenge.conf"
+    src: "etc/{{ apache2_name }}/includes/letsencrypt-acme-challenge.conf.j2"
+    dest: "/etc/{{ apache2_name }}/includes/letsencrypt-acme-challenge.conf"
     force: yes
   notify: restart apache
-  
+
 - name: Grep for the acme include in default Apache site
-  shell: grep -q 'Include /etc/apache2/includes/letsencrypt-acme-challenge.conf' /etc/apache2/sites-available/000-default.conf
+  shell: grep -q 'Include /etc/{{ apache2_name }}/includes/letsencrypt-acme-challenge.conf' /etc/{{ apache2_name }}/{{ apache2_vhosts_conf_dir }}/{{ default_vhost_filename }}
   register: acme_grep_result
   ignore_errors: true
   changed_when: false
 
 - name: Reset default site to non-ssl version
   template:
-    src: "etc/apache2/sites-available/000-default.conf.pre-ssl.j2"
-    dest: "/etc/apache2/sites-available/000-default.conf"
+    src: "etc/{{ apache2_name }}/{{ apache2_vhosts_conf_dir }}/{{ default_vhost_filename }}.pre-ssl.j2"
+    dest: "/etc/{{ apache2_name }}/{{ apache2_vhosts_conf_dir }}/{{ default_vhost_filename }}"
     backup: yes
-  when: acme_grep_result.rc != 0
+  when: acme_grep_result is defined
+    and acme_grep_result.rc is defined
+    and acme_grep_result.rc != 0
   notify: restart apache
 
 - name: Enable the default site
-  file: 
-    path: "/etc/apache2/sites-enabled/000-default.conf"
+  file:
+    path: "/etc/{{ apache2_name }}/{{ apache2_vhosts_conf_dir }}/{{ default_vhost_filename }}"
     state: "link"
-    src: "/etc/apache2/sites-available/000-default.conf"
+    src: "/etc/{{ apache2_name }}/{{ apache2_vhosts_conf_dir }}/{{ default_vhost_filename }}"
   notify: restart apache
+  when: ansible_os_family == 'Debian'
 
 - name: Reload apache if necessary
   meta: flush_handlers
 
 - name: Automatically renew LE certs with cron
-  cron: 
+  cron:
     name: "Renew letsencrypt SSL certificates"
     minute: "5"
     hour: "7"
-    job: "/usr/local/bin/certbot-auto renew --quiet --no-self-upgrade && /usr/sbin/apachectl configtest 2>&1 | /bin/grep -v 'Syntax OK' || /usr/sbin/service apache2 reload"
+    job: "/usr/local/bin/certbot-auto renew --quiet --no-self-upgrade && /usr/sbin/apachectl configtest 2>&1 | /bin/grep -v 'Syntax OK' || {{ service_binary }} {{ apache2_name }} reload"
+  when: ansible_os_family == 'Debian'
   tags:
     - cron

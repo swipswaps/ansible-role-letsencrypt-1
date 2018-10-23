@@ -1,0 +1,23 @@
+# {{ ansible_managed }}
+<VirtualHost *:80>
+  DocumentRoot /var/www/html
+  ErrorLog /var/log/httpd/error_log
+  CustomLog /var/log/httpd/access_log combined
+  Include /etc/httpd/includes/letsencrypt-acme-challenge.conf
+</VirtualHost>
+
+<VirtualHost *:443>
+  DocumentRoot /var/www/html
+  ErrorLog /var/log/httpd/error_log
+  CustomLog /var/log/httpd/access_log combined
+  Include /etc/httpd/includes/letsencrypt-acme-challenge.conf
+
+  SSLEngine on
+  SSLCertificateFile /etc/letsencrypt/live/{{ ansible_fqdn }}/cert.pem
+  SSLCertificateKeyFile /etc/letsencrypt/live/{{ ansible_fqdn }}/privkey.pem
+  SSLCertificateChainFile /etc/letsencrypt/live/{{ ansible_fqdn }}/chain.pem
+  SSLOpenSSLConfCmd DHParameters /usr/local/ssl/private/dhparams.pem
+
+  SSLProtocol +TLSv1 +TLSv1.1 +TLSv1.2
+  SSLCipherSuite HIGH:!aNULL:!MD5
+</VirtualHost>

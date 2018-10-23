@@ -1,0 +1,6 @@
+---
+administrative_group: adm
+apache2_name: apache2
+apache2_vhosts_conf_dir: sites-available
+service_binary: /usr/sbin/service
+default_vhost_filename: 000-default.conf

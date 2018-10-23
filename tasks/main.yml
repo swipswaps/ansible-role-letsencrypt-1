@@ -1,10 +1,18 @@
 ---
-- name: Check if OS is Ubuntu LTS
-  fail: msg="Server must be Ubuntu LTS"
-  when: ansible_distribution != 'Ubuntu'
-    or (ansible_distribution_version != '14.04'
-      and ansible_distribution_version != '16.04'
-      and ansible_distribution_version != '18.04')
+- name: Check if OS is supported
+  assert:
+    msg: msg="Server must be Ubuntu LTS or RedHat/CentOS"
+    that: (ansible_distribution == 'Ubuntu'
+      and (
+        ansible_distribution_version == '14.04'
+        or ansible_distribution_version == '16.04'
+        or ansible_distribution_version == '18.04'
+      ))
+      or (ansible_os_family == 'RedHat'
+        and ansible_distribution_major_version == '6'
+      )
+
+- include_vars: "vars/{{ ansible_os_family }}.yml"
 
 - name: Run {{ letsencrypt_webserver }}.yml playbook
   include: "{{ letsencrypt_webserver }}.yml"
@@ -85,7 +93,7 @@
 
 - name: Create a cert for the default site (can take some time)
   shell: >
-    certbot-auto
+    /usr/local/bin/certbot-auto
     --non-interactive
     --agree-tos
     --email {{ default_mail_recipient }}
@@ -93,7 +101,9 @@
     --webroot -w /var/www/letsencrypt
     -d $(hostname -f)
   register: certbot_result
-  when: "default_cert_result.rc != 0"
+  when: default_cert_result is defined
+    and default_cert_result.rc is defined
+    and default_cert_result.rc != 0
 
 - name: Re-stat default site SSL cert
   shell: "test -e /etc/letsencrypt/live/{{ ansible_fqdn }}"

@@ -1,36 +1,36 @@
-nginx
-======
+# Ansible role: letsencrypt
 
-For setting up Nginx on an Ubuntu 14.04 or 16.04 server.
+For use on shared hosting servers.
+
+Installs LetsEncrypt, and makes a `/.well-known/acme-challenge` virtual directory available to other virtual hosts on the server, so they can all regsiter and renew LE SSL certificates.
+
+## Requirements
+
+NGINX or Apache 2 on Ubuntu 14.04 +, or Apache 2 on CentOS/RedHat 6
+
+## Role Variables
+
+```yaml
+letsencrypt_webserver: [nginx|apache]
+```
+The brand of web server that's running on the server.
 
 
-Requirements
-------------
-* Ubuntu
-
-Role Variables
---------------
-* letsencrypt_webserver: The webserver to use for letsencrypt
-
-Dependencies
-------------
+## Dependencies
 
 None
 
-Example Playbook
-----------------
+## Example Playbook
 
     - hosts: servers
       roles:
-         - { role: acromedia.nginx }
+         - { role: acromedia.letsencrypt }
 
-License
--------
+## License
 
-BSD
+GPLv3
 
-Author Information
-------------------
+## Author Information
 
 Acro Media Inc.
 https://www.acromedia.com/

@@ -1,12 +1,15 @@
 ---
 - name: Set apache restart handler variables
   set_fact:
-    apache_service: apache2
+    apache_service: "{{ apache2_name }}"
     apache_restart_state: reloaded
 
 - name: Enable SSL on default site
-  template: src=etc/apache2/sites-available/000-default.conf.LE.j2
-    dest=/etc/apache2/sites-available/000-default.conf
-    backup=yes
+  template:
+    src: etc/{{ apache2_name }}/{{ apache2_vhosts_conf_dir }}/{{ default_vhost_filename }}.LE.j2
+    dest: /etc/{{ apache2_name }}/{{ apache2_vhosts_conf_dir }}/{{ default_vhost_filename }}
+    backup: true
   notify: restart apache
-  when: default_cert_retest.rc == 0
+  when: default_cert_retest is defined
+    and default_cert_retest.rc is defined
+    and default_cert_retest.rc == 0

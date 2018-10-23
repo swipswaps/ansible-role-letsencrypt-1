@@ -1,0 +1,7 @@
+# {{ ansible_managed }}
+<VirtualHost *:80>
+  DocumentRoot /var/www/html
+  ErrorLog /var/log/httpd/error_log
+  CustomLog /var/log/httpd/access_log combined
+  Include /etc/httpd/includes/letsencrypt-acme-challenge.conf
+</VirtualHost>
