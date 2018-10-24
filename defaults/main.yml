@@ -11,3 +11,6 @@ apache_auth: |
   Satisfy Any
 apache_dhparams: SSLOpenSSLConfCmd DHParameters /usr/local/ssl/private/dhparams.pem
 apache_ssl_line: SSLEngine on
+
+# In some edge cases, ansible_fqdn may doesn't return what we expect, so this lets us override it.
+default_site_fqdn: "{{ ansible_fqdn }}"

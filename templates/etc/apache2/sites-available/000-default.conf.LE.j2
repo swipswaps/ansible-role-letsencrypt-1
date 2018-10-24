@@ -13,9 +13,9 @@
   Include /etc/apache2/includes/letsencrypt-acme-challenge.conf
 
   SSLEngine on
-  SSLCertificateFile /etc/letsencrypt/live/{{ ansible_fqdn }}/cert.pem
-  SSLCertificateKeyFile /etc/letsencrypt/live/{{ ansible_fqdn }}/privkey.pem
-  SSLCertificateChainFile /etc/letsencrypt/live/{{ ansible_fqdn }}/chain.pem
+  SSLCertificateFile /etc/letsencrypt/live/{{ default_site_fqdn }}/cert.pem
+  SSLCertificateKeyFile /etc/letsencrypt/live/{{ default_site_fqdn }}/privkey.pem
+  SSLCertificateChainFile /etc/letsencrypt/live/{{ default_site_fqdn }}/chain.pem
   {{ apache_dhparams }}
 
   SSLProtocol +TLSv1.2

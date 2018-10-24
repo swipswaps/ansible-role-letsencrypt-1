@@ -86,7 +86,7 @@
     creates: /usr/local/ssl/private/dhparams.pem
 
 - name: Stat the default site SSL cert
-  shell: "test -e /etc/letsencrypt/live/{{ ansible_fqdn }}"
+  shell: "test -e /etc/letsencrypt/live/{{ default_site_fqdn }}"
   register: default_cert_result
   changed_when: "default_cert_result.rc != 0"
   ignore_errors: true
@@ -106,7 +106,7 @@
     and default_cert_result.rc != 0
 
 - name: Re-stat default site SSL cert
-  shell: "test -e /etc/letsencrypt/live/{{ ansible_fqdn }}"
+  shell: "test -e /etc/letsencrypt/live/{{ default_site_fqdn }}"
   register: default_cert_retest
   ignore_errors: true
   changed_when: default_cert_retest.rc != default_cert_result.rc
