@@ -3,15 +3,36 @@
   shell: test -x /usr/sbin/{{ apache2_name }}
   changed_when: false
 
-- name: Fail when apache isn't 2.4
-  shell: /usr/sbin/{{ apache2_name }} -v | grep -q 'Apache/2.4'
-  when: ansible_os_family == 'Debian'
+- name: Detect installed apache version
+  shell: >
+    /usr/sbin/{{ apache2_name }} -v|grep -Po '(?<=Apache/)\d.\d.\d+'
   changed_when: false
+  register: apache_version_result
 
-- name: Fail when apache isn't 2.2 (EL6)
-  shell: /usr/sbin/{{ apache2_name }} -v | grep -q 'Apache/2.2'
-  when: ansible_os_family == 'RedHat'
-  changed_when: false
+- set_fact:
+    apache_version: '{{ apache_version_result.stdout }}'
+  when: apache_version_result is defined
+    and apache_version_result.stdout is defined
+  # ^ The 'when' clause is required so the role can survive '--check' mode.
+
+- name: Make sure we're using a supported apache version
+  assert:
+    that: apache_version is version('2.2.0', '>=')
+
+- name: Override some variables when using apache < 2.4.0
+  set_fact:
+    apache_auth: |
+      Order allow,deny
+      Allow from all
+    apache_ssl_line: ''
+  when:
+  when: apache_version is version('2.4.0', '<')
+
+- name: Override some variables when using apache < 2.4.8
+  set_fact:
+    apache_dhparams: ''
+  when:
+  when: apache_version is version('2.4.8', '<')
 
 - name: Set apache restart handler variables
   set_fact:

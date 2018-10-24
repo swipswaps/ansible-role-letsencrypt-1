@@ -13,3 +13,15 @@
   when: default_cert_retest is defined
     and default_cert_retest.rc is defined
     and default_cert_retest.rc == 0
+
+- name: Disable the factory default site on EL Apache 2.2 (we already set up in the welcome file)
+  template:
+    src: etc/{{ apache2_name }}/{{ apache2_vhosts_conf_dir }}/ssl.conf.LE.apache-22.j2
+    dest: /etc/{{ apache2_name }}/{{ apache2_vhosts_conf_dir }}/ssl.conf
+    backup: true
+  notify: restart apache
+  when: default_cert_retest is defined
+    and default_cert_retest.rc is defined
+    and default_cert_retest.rc == 0
+    and ansible_os_family == 'RedHat'
+    and apache_version is version('2.4.0', '<' )

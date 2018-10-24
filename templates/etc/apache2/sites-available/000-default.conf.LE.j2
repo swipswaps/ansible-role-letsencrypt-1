@@ -11,13 +11,13 @@
   ErrorLog ${APACHE_LOG_DIR}/error.log
   CustomLog ${APACHE_LOG_DIR}/access.log combined
   Include /etc/apache2/includes/letsencrypt-acme-challenge.conf
-  
+
   SSLEngine on
   SSLCertificateFile /etc/letsencrypt/live/{{ ansible_fqdn }}/cert.pem
   SSLCertificateKeyFile /etc/letsencrypt/live/{{ ansible_fqdn }}/privkey.pem
   SSLCertificateChainFile /etc/letsencrypt/live/{{ ansible_fqdn }}/chain.pem
-  SSLOpenSSLConfCmd DHParameters /usr/local/ssl/private/dhparams.pem
-  
-  SSLProtocol +TLSv1 +TLSv1.1 +TLSv1.2
+  {{ apache_dhparams }}
+
+  SSLProtocol +TLSv1.2
   SSLCipherSuite HIGH:!aNULL:!MD5
 </VirtualHost>

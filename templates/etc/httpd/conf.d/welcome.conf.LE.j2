@@ -1,12 +1,18 @@
 # {{ ansible_managed }}
-<VirtualHost *:80>
+<LocationMatch "^/+$">
+  # Show the default default "Welcome" index page for the root url if there is no default index page present.
+  Options -Indexes
+  ErrorDocument 403 /error/noindex.html
+</LocationMatch>
+
+<VirtualHost _default_:80>
   DocumentRoot /var/www/html
   ErrorLog /var/log/httpd/error_log
   CustomLog /var/log/httpd/access_log combined
   Include /etc/httpd/includes/letsencrypt-acme-challenge.conf
 </VirtualHost>
 
-<VirtualHost *:443>
+<VirtualHost _default_:443>
   DocumentRoot /var/www/html
   ErrorLog /var/log/httpd/error_log
   CustomLog /var/log/httpd/access_log combined
@@ -16,8 +22,8 @@
   SSLCertificateFile /etc/letsencrypt/live/{{ ansible_fqdn }}/cert.pem
   SSLCertificateKeyFile /etc/letsencrypt/live/{{ ansible_fqdn }}/privkey.pem
   SSLCertificateChainFile /etc/letsencrypt/live/{{ ansible_fqdn }}/chain.pem
-  SSLOpenSSLConfCmd DHParameters /usr/local/ssl/private/dhparams.pem
+  {{ apache_dhparams }}
 
-  SSLProtocol +TLSv1 +TLSv1.1 +TLSv1.2
+  SSLProtocol +TLSv1.2
   SSLCipherSuite HIGH:!aNULL:!MD5
 </VirtualHost>

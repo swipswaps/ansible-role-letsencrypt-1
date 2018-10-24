@@ -1,2 +1,13 @@
 ---
 letsencrypt_webserver: nginx
+
+# This is just a sane default until the playbook overrides it with the real installed version when the tasks file runs.
+apache_version: 2.4
+
+# The apache_* values below work for Apache 2.4.8+
+# In the apache tasks file, we'll detect the installed version and override these if we're dealing with an earlier version.
+apache_auth: |
+  Require all granted
+  Satisfy Any
+apache_dhparams: SSLOpenSSLConfCmd DHParameters /usr/local/ssl/private/dhparams.pem
+apache_ssl_line: SSLEngine on

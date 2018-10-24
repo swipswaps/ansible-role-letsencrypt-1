@@ -1,5 +1,11 @@
 # {{ ansible_managed }}
-<VirtualHost *:80>
+<LocationMatch "^/+$">
+  # Show the default default "Welcome" index page for the root url if there is no default index page present.
+  Options -Indexes
+  ErrorDocument 403 /error/noindex.html
+</LocationMatch>
+
+<VirtualHost _default_:80>
   DocumentRoot /var/www/html
   ErrorLog /var/log/httpd/error_log
   CustomLog /var/log/httpd/access_log combined

@@ -21,5 +21,5 @@ Alias "/.well-known/acme-challenge" "/var/www/letsencrypt/.well-known/acme-chall
 # Disable indexes and allow accesss.
 <Directory "/var/www/letsencrypt/.well-known/acme-challenge">
   Options -Indexes +FollowSymLinks
-  Require all granted
+  {{ apache_auth }}
 </Directory>
