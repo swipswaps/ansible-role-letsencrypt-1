@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 server {
-  listen 80 default_server;
-  listen [::]:80 default_server;
+  listen {{ http_port }} default_server;
+  listen [::]:{{ http_port }} default_server;
   include /etc/nginx/includes/letsencrypt-acme-challenge.conf;
   root /usr/share/nginx/html;
   index index.html index.htm index.nginx-debian.html;

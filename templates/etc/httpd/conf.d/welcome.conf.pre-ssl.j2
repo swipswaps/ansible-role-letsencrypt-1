@@ -5,7 +5,7 @@
   ErrorDocument 403 /error/noindex.html
 </LocationMatch>
 
-<VirtualHost _default_:80>
+<VirtualHost _default_:{{ http_port }}>
   DocumentRoot /var/www/html
   ErrorLog /var/log/httpd/error_log
   CustomLog /var/log/httpd/access_log combined

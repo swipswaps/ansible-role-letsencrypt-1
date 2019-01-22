@@ -1,7 +1,8 @@
 # {{ ansible_managed }}
+# See https://github.com/AcroMedia/ansible-role-letsencrypt/blob/master/templates/etc/nginx/sites-available/default.LE.j2
 server {
-  listen 80 default_server;
-  listen [::]:80 default_server;
+  listen {{ http_port }} default_server;
+  listen [::]:{{ http_port }} default_server;
   include /etc/nginx/includes/letsencrypt-acme-challenge.conf;
   root /usr/share/nginx/html;
   index index.html index.htm index.nginx-debian.html;
@@ -12,9 +13,10 @@ server {
     try_files $uri $uri/ =404;
   }
 }
+
 server {
-  listen 443 ssl default_server;
-  listen [::]:443 ssl default_server;
+  listen {{ https_port }} ssl default_server;
+  listen [::]:{{ https_port }} ssl default_server;
   include /etc/nginx/includes/letsencrypt-acme-challenge.conf;
 
   ssl_certificate /etc/letsencrypt/live/{{ default_site_fqdn }}/fullchain.pem;

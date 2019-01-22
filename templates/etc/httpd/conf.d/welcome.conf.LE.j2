@@ -5,14 +5,14 @@
   ErrorDocument 403 /error/noindex.html
 </LocationMatch>
 
-<VirtualHost _default_:80>
+<VirtualHost _default_:{{ http_port }}>
   DocumentRoot /var/www/html
   ErrorLog /var/log/httpd/error_log
   CustomLog /var/log/httpd/access_log combined
   Include /etc/httpd/includes/letsencrypt-acme-challenge.conf
 </VirtualHost>
 
-<VirtualHost _default_:443>
+<VirtualHost _default_:{{ https_port }}>
   DocumentRoot /var/www/html
   ErrorLog /var/log/httpd/error_log
   CustomLog /var/log/httpd/access_log combined
