@@ -30,6 +30,9 @@ location ^~ /.well-known/acme-challenge/ {
     # Do NOT use alias, use root! Target directory is located here:
     # /var/www/common/letsencrypt/.well-known/acme-challenge/
     root         /var/www/letsencrypt;
+
+    # Let the cert renewal happen even if the rest of the site is behind a password
+    auth_basic off;
 }
 
 # Hide /acme-challenge subdirectory and return 404 on all requests.
