@@ -9,7 +9,7 @@ As an added bonus, after this role is installed, you won't need to create new vi
 
 ## Requirements
 
-NGINX or Apache 2 on Ubuntu >= 14.04 +, or Apache 2 on CentOS/RedHat >= 6
+(NGINX or Apache 2) on (Ubuntu >= 14.04 or CentOS/RedHat >= 6)
 
 ## Role Variables
 

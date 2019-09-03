@@ -1,7 +1,8 @@
 ---
 - name: Enable SSL on default site
-  template: src=etc/nginx/sites-available/default.LE.j2
-    dest=/etc/nginx/sites-available/default
-    backup=yes
+  template:
+    src: etc/nginx/sites-available/default.LE.j2
+    dest: "{{ nginx_vhost_conf_dir }}/{{ nginx_default_vhost_filename }}"
+    backup: yes
   notify: reload nginx
   when: default_cert_retest.rc == 0

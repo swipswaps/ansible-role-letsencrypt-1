@@ -25,7 +25,7 @@
 - name: Reset default site to non-ssl version
   template:
     src: "etc/nginx/sites-available/default.pre-ssl.j2"
-    dest: "/etc/nginx/sites-available/default"
+    dest: "{{ nginx_vhost_conf_dir }}/{{ nginx_default_vhost_filename }}"
     backup: yes
   when: acme_grep_result.rc != 0
   notify: reload nginx
@@ -34,8 +34,9 @@
   file:
     path: "/etc/nginx/sites-enabled/default"
     state: "link"
-    src: "/etc/nginx/sites-available/default"
+    src: "{{ nginx_vhost_conf_dir }}/{{ nginx_default_vhost_filename }}"
   notify: reload nginx
+  when: ansible_os_family == "Debian"
 
 - name: Reload nginx if necessary
   meta: flush_handlers

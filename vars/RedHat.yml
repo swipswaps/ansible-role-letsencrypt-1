@@ -4,3 +4,5 @@ apache2_name: httpd
 apache2_vhosts_conf_dir: conf.d
 service_binary: /sbin/service
 default_vhost_filename: welcome.conf
+nginx_vhost_conf_dir: /etc/nginx/conf.d
+nginx_default_vhost_filename: default.conf
