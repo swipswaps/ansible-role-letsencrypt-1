@@ -25,6 +25,10 @@ As an added bonus, after this role is installed, you won't need to create new vi
 
   Defaults to `443`. Change it to something else if you're installing Varnish in front of your web service.
 
+- **letsencrypt_renew_cron_minute**, **letsencrypt_renew_cron_hour**, **letsencrypt_renew_cron_day**
+
+    Control what time the server attempts LE certificate renewal. These default to `5`, `7`, and `*`, respectively (ie. 7:05 AM daily, local server time).
+
 
 ## Dependencies
 
