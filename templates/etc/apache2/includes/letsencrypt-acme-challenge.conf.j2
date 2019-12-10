@@ -19,7 +19,7 @@ Alias "/.well-known/acme-challenge" "/var/www/letsencrypt/.well-known/acme-chall
 </LocationMatch>
 
 # Disable indexes and allow accesss.
-<Directory "/var/www/letsencrypt/.well-known/acme-challenge">
+<Directory "{{ letsencrypt_webroot }}/.well-known/acme-challenge">
   Options -Indexes +FollowSymLinks
   {{ apache_auth }}
 </Directory>

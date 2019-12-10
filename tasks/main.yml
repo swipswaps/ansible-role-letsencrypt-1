@@ -19,13 +19,13 @@
 
 - name: Create the acme-challenge dir
   file:
-    path: "/var/www/letsencrypt/.well-known/acme-challenge"
+    path: "{{ letsencrypt_webroot }}/.well-known/acme-challenge"
     state: directory
   notify: "restart {{ letsencrypt_webserver }}"
 
 - name: Be able to ping the challenge dir
   lineinfile:
-    dest: "/var/www/letsencrypt/.well-known/acme-challenge/ping"
+    dest: "{{ letsencrypt_webroot }}/.well-known/acme-challenge/ping"
     state: present
     line: pong
     create: yes
