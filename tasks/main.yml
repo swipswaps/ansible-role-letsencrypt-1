@@ -95,12 +95,13 @@
 - name: Create a cert for the default site (can take some time)
   shell: >
     /usr/local/bin/certbot-auto
-    --non-interactive
-    --agree-tos
-    --email {{ default_mail_recipient }}
-    certonly
-    --webroot -w /var/www/letsencrypt
-    -d $(hostname -f)
+     --non-interactive
+     --agree-tos
+     --email {{ default_mail_recipient }}
+     certonly
+     --webroot
+     --webroot-path {{ letsencrypt_webroot }}
+     --domains $(hostname -f)
   register: certbot_result
   when: default_cert_result is defined
     and default_cert_result.rc is defined
