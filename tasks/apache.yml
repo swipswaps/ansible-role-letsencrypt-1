@@ -88,4 +88,4 @@
     job: "/usr/local/bin/certbot-auto renew --quiet --no-self-upgrade --webroot-path {{ letsencrypt_webroot }} && /usr/sbin/apachectl configtest 2>&1 | /bin/grep -v 'Syntax OK' || {{ service_binary }} {{ apache2_name }} reload"
   when: ansible_os_family == 'Debian'
   tags:
-    - cron
+    - letsencrypt_cron

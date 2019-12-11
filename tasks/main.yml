@@ -71,7 +71,7 @@
     job: >
       /usr/local/bin/certbot-auto --version 2>&1 | /bin/sed -r 's/^certbot ([0-9]+)(\.[0-9]+)+$//' |/bin/sed '/^\s*$/d'
   tags:
-    - cron
+    - letsencrypt_cron
   when: ansible_distribution == 'Ubuntu'
     and ansible_distribution_major_version |int < 18
 
