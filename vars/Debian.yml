@@ -2,6 +2,7 @@
 administrative_group: adm
 apache2_name: apache2
 apache2_vhosts_conf_dir: sites-available
+apache2_vhosts_enable_dir: sites-enabled
 service_binary: /usr/sbin/service
 default_vhost_filename: 000-default.conf
 nginx_vhost_conf_dir: /etc/nginx/sites-available

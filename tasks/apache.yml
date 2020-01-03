@@ -70,7 +70,7 @@
 
 - name: Enable the default site
   file:
-    path: "/etc/{{ apache2_name }}/{{ apache2_vhosts_conf_dir }}/{{ default_vhost_filename }}"
+    path: "/etc/{{ apache2_name }}/{{ apache2_vhosts_enable_dir }}/{{ default_vhost_filename }}"
     state: "link"
     src: "/etc/{{ apache2_name }}/{{ apache2_vhosts_conf_dir }}/{{ default_vhost_filename }}"
   notify: restart apache
