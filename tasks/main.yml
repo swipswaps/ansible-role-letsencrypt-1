@@ -46,7 +46,7 @@
       src: /usr/bin/certbot
       dest: /usr/local/bin/certbot-auto
   when: ansible_distribution == 'Ubuntu'
-    and ansible_distribution_version == '18.04'
+    and letsencrypt_install_certbot_from_ppa == true
 
 - name: Check if certbot-auto exists
   stat: path=/usr/local/bin/certbot-auto
@@ -73,7 +73,7 @@
   tags:
     - letsencrypt_cron
   when: ansible_distribution == 'Ubuntu'
-    and ansible_distribution_major_version |int < 18
+    and letsencrypt_install_certbot_from_ppa == false
 
 - name: Create a destination for dhparams
   file:
