@@ -54,7 +54,7 @@
 
 - name: Download certbot-auto if it doesn't exist
   get_url:
-    url: https://raw.githubusercontent.com/certbot/certbot/master/certbot-auto
+    url: https://dl.eff.org/certbot-auto
     # checksum="sha256:0103972f4d42704ff70ac855b502718fadf161925eaa7da16455fa55737c8887"
     dest: /usr/local/bin/certbot-auto
     mode: 0755
