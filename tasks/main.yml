@@ -1,16 +1,9 @@
 ---
 - name: Check if OS is supported
   assert:
-    msg: msg="Server must be Ubuntu LTS or RedHat/CentOS"
-    that: (ansible_distribution == 'Ubuntu'
-      and (
-        ansible_distribution_version == '14.04'
-        or ansible_distribution_version == '16.04'
-        or ansible_distribution_version == '18.04'
-      ))
-      or (ansible_os_family == 'RedHat'
-        and ansible_distribution_major_version == '6'
-      )
+    msg: msg="Server must be Ubuntu 16+ or RedHat/CentOS 6+"
+    that: (ansible_distribution == 'Ubuntu' and  ansible_distribution_major_version >= "16")
+      or (ansible_os_family == 'RedHat' and ansible_distribution_major_version >= '6')
 
 - include_vars: "vars/{{ ansible_os_family }}.yml"
 
@@ -61,7 +54,7 @@
   notify: "restart {{ letsencrypt_webserver }}"
   when: certbot_auto_file.stat.exists == false
 
-- name: Automatically update certbot-auto once a month with cron on older Ubuntu
+- name: Automatically update certbot-auto once a month with cron on Ubuntu
   cron:
     name: "Update certbot-auto once a month"
     minute: "0"
