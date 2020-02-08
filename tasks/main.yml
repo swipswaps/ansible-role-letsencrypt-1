@@ -85,16 +85,20 @@
   changed_when: "default_cert_result.rc != 0"
   ignore_errors: true
 
+- name: Compose the certbot command string
+  set_fact:
+    certbot_command_string: >
+      /usr/local/bin/certbot-auto certonly
+      --non-interactive
+      --agree-tos
+      --email {{ default_mail_recipient }}
+      --webroot
+      --webroot-path {{ letsencrypt_webroot }}
+      --domains $(hostname -f)
+
 - name: Create a cert for the default site (can take some time)
   shell: >
-    /usr/local/bin/certbot-auto
-     --non-interactive
-     --agree-tos
-     --email {{ default_mail_recipient }}
-     certonly
-     --webroot
-     --webroot-path {{ letsencrypt_webroot }}
-     --domains $(hostname -f)
+    {{ certbot_command_string }} --dry-run && {{ certbot_command_string }}
   register: certbot_result
   when: default_cert_result is defined
     and default_cert_result.rc is defined
