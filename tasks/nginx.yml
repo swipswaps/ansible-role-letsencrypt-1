@@ -1,7 +1,7 @@
 ---
-- name: Fail when nginx doesn't exist
-  shell: test -x /usr/sbin/nginx
-  changed_when: false
+#- name: Fail when nginx doesn't exist
+#  shell: test -x /usr/sbin/nginx
+#  changed_when: false
 
 - name: Create nginx includes dir
   file:
@@ -16,19 +16,19 @@
     force: yes
   notify: reload nginx
 
-- name: Grep for the acme include in default NGINX site
-  shell: grep -q 'include /etc/nginx/includes/letsencrypt-acme-challenge.conf' /etc/nginx/sites-available/default
-  register: acme_grep_result
-  ignore_errors: true
-  changed_when: false
+#- name: Grep for the acme include in default NGINX site
+#  shell: grep -q 'include /etc/nginx/includes/letsencrypt-acme-challenge.conf' /etc/nginx/sites-available/default
+#  register: acme_grep_result
+#  ignore_errors: true
+#  changed_when: false
 
-- name: Reset default site to non-ssl version
-  template:
-    src: "etc/nginx/sites-available/default.pre-ssl.j2"
-    dest: "{{ nginx_vhost_conf_dir }}/{{ nginx_default_vhost_filename }}"
-    backup: yes
-  when: acme_grep_result.rc != 0
-  notify: reload nginx
+#- name: Reset default site to non-ssl version
+#  template:
+#    src: "etc/nginx/sites-available/default.pre-ssl.j2"
+#    dest: "{{ nginx_vhost_conf_dir }}/{{ nginx_default_vhost_filename }}"
+#    backup: yes
+#  when: acme_grep_result.rc != 0
+#  notify: reload nginx
 
 - name: Enable the default site
   file:

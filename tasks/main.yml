@@ -9,10 +9,13 @@
         or ansible_distribution_version == '18.04'
       ))
       or (ansible_os_family == 'RedHat'
-        and ansible_distribution_major_version == '6'
-      )
+        and (
+      ansible_distribution_major_version == '6'
+      or ansible_distribution_major_version == '7'
+      ))
 
-- include_vars: "vars/{{ ansible_os_family }}.yml"
+- name: Include variables for OS system
+  include_vars: "vars/{{ ansible_os_family }}.yml"
 
 - name: Run {{ letsencrypt_webserver }}.yml playbook
   include: "{{ letsencrypt_webserver }}.yml"
@@ -59,7 +62,7 @@
     dest: /usr/local/bin/certbot-auto
     mode: 0755
   notify: "restart {{ letsencrypt_webserver }}"
-  when: certbot_auto_file.stat.exists == false
+  when: not certbot_auto_file.stat.exists
 
 - name: Automatically update certbot-auto once a month with cron on older Ubuntu
   cron:
