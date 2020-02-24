@@ -41,6 +41,37 @@
   when: ansible_distribution == 'Ubuntu'
     and letsencrypt_install_certbot_from_ppa == true
 
+- block:
+  - name: Remove obsolete PPA version of letsencrypt
+    apt:
+      name:
+        - letsencrypt
+        - certbot
+      state: absent
+      purge: false  # Do NOT remove config files
+      update_cache: true
+
+  - name: Remove obsolete Certbot PPA repo
+    apt_repository:
+      repo: ppa:certbot/certbot
+      state: absent
+      update_cache: true
+
+  - name: Remove certbot-auto when it's a symlink
+    shell: if [ -h /usr/local/bin/certbot-auto ] ; then rm -v /usr/local/bin/certbot-auto; else true; fi
+    register: rm_certbot_link_result
+    changed_when: "rm_certbot_link_result is defined
+      and rm_certbot_link_result.stdout is defined
+      and 'removed' in rm_certbot_link_result.stdout"
+
+  - name: Purge obsolete certbot virtual environment
+    shell: rm -rf /opt/eff.org
+    when: rm_certbot_link_result is defined
+      and rm_certbot_link_result.changed
+
+  when: ansible_distribution == 'Ubuntu'
+    and letsencrypt_install_certbot_from_ppa == false
+
 - name: Check if certbot-auto exists
   stat: path=/usr/local/bin/certbot-auto
   register: certbot_auto_file
