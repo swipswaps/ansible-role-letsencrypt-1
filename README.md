@@ -29,6 +29,10 @@ As an added bonus, after this role is installed, you won't need to create new vi
 
     Control what time the server attempts LE certificate renewal. These default to `5`, `7`, and `*`, respectively (ie. 7:05 AM daily, local server time).
 
+- **letsencrypt_install_certbot_from_ppa**
+
+  Defaults to `false`, is only relevant to Debian/Ubuntu servers, and only exists here for legacy/compatibility purposes. Normally, installation of the self-updating script (the default behaviour) is the best choice in all scenarios.
+
 
 ## Dependencies
 
