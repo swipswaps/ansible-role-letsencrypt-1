@@ -27,7 +27,9 @@
     src: "etc/nginx/sites-available/default.pre-ssl.j2"
     dest: "{{ nginx_vhost_conf_dir }}/{{ nginx_default_vhost_filename }}"
     backup: yes
-  when: acme_grep_result.rc != 0
+  when: acme_grep_result is defined
+    and acme_grep_result.rc is defined
+    and acme_grep_result.rc != 0
   notify: reload nginx
 
 - name: Enable the default site
