@@ -118,7 +118,7 @@
 
 - name: Compose the certbot command string
   set_fact:
-    certbot_command_string: >
+    certbot_command_string: >-
       /usr/local/bin/certbot-auto certonly
       --non-interactive
       --agree-tos
