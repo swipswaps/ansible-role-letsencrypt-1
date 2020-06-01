@@ -134,6 +134,8 @@
   when: default_cert_result is defined
     and default_cert_result.rc is defined
     and default_cert_result.rc != 0
+  environment:
+    DEBIAN_FRONTEND noninteractive
 
 - name: Re-stat default site SSL cert
   shell: "test -e /etc/letsencrypt/live/{{ default_site_fqdn }}"
