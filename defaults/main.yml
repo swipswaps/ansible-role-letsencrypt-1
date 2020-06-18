@@ -13,7 +13,7 @@ apache_dhparams: SSLOpenSSLConfCmd DHParameters /usr/local/ssl/private/dhparams.
 apache_ssl_line: SSLEngine on
 
 # In some edge cases, ansible_fqdn may doesn't return what we expect, so this lets us override it.
-default_site_fqdn: "{{ ansible_fqdn }}"
+default_site_fqdn: "{{ ansible_fqdn }}"   # in most cases, this is the same as $(hostname -f)
 
 
 http_port: 80

@@ -116,7 +116,7 @@
   changed_when: "default_cert_result.rc != 0"
   ignore_errors: true
 
-- name: Compose the certbot command string
+- name: Compose the certbot command string for the default site cert
   set_fact:
     certbot_command_string: >-
       /usr/local/bin/certbot-auto certonly
@@ -125,7 +125,7 @@
       --email {{ default_mail_recipient }}
       --webroot
       --webroot-path {{ letsencrypt_webroot }}
-      --domains $(hostname -f)
+      --domains {{ default_site_fqdn }}
 
 - name: Create a cert for the default site (can take some time)
   shell: >

@@ -9,7 +9,9 @@ As an added bonus, after this role is installed, you won't need to create new vi
 
 ## Requirements
 
-(NGINX or Apache 2) on (Ubuntu >= 14.04 or CentOS/RedHat >= 6)
+- (NGINX or Apache 2) on (Ubuntu >= 14.04 or CentOS/RedHat >= 6)
+- Working DNS: The cert name you're registering must resolve to the machine you're registering the cert from
+- A working fully qualified host name: If `hostname -f` on the machine doesn't correctly resolve to the machine from the outside world, you need to either fix it, or override it with one that does resolve with `default_site_fqdn` from your playbook instead.
 
 ## Role Variables
 
