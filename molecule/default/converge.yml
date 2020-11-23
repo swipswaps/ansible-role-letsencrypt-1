@@ -4,11 +4,14 @@
   become: true
 
   vars:
-
+    - default_mail_recipient: webmaster@acromedia.com
   pre_tasks:
-    - name: Update apt cache.
-      apt: update_cache=true cache_valid_time=600
-      when: ansible_os_family == 'Debian'
+
+    - name: Install nginx
+      apt:
+        name: nginx
+        update_cache: yes
+        state: present
 
   roles:
     - role: ansible-role-letsencrypt
